@@ -52,7 +52,6 @@ const filteredUsers = computed(() => {
 
 <template>
   <div class="w-[80%] mx-auto mt-10">
-    <!-- Search Bar -->
     <div class="relative w-1/3 mb-10 ml-auto">
       <input
         v-model="searchQuery"
@@ -65,9 +64,8 @@ const filteredUsers = computed(() => {
       ></i>
     </div>
 
-    <!-- Table Header (Hidden on Mobile) -->
     <div
-      class="hidden md:flex justify-between px-6 py-3 text-gray-400 text-sm rounded-t-lg bg-gray-100"
+      class="hidden md:flex justify-between px-6 py-3 text-gray-400 text-sm rounded-t-lg"
     >
       <span class="w-1/5">Date</span>
       <span class="w-2/5">Name</span>
