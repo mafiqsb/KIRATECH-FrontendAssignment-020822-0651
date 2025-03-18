@@ -125,10 +125,10 @@ const filteredUsers = computed(() => {
 
       <div class="flex justify-center mt-6 mb-6">
         <button
-          class="px-6 py-3 bg-[#61b8d4] text-white font-semibold rounded-lg shadow-md transition-all duration-300 ease-in-out hover:bg-[#4fa1bb] hover:shadow-lg active:scale-95"
+          class="px-6 py-3 bg-[#61b8d4] text-white font-semibold rounded-lg shadow-md transition-all duration-300 ease-in-out hover:bg-[#4fa1bb] hover:shadow-lg active:scale-95 hover:cursor-pointer"
           @click="fetchUsers"
         >
-          <i class="fas fa-sync-alt animate-spin-once hover:cursor-pointer"></i>
+          <i class="fas fa-sync-alt animate-spin-once"></i>
           Refresh
         </button>
       </div>
