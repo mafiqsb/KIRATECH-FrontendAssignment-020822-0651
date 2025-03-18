@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import UserModal from '../UserModal.vue';
 
 const users = ref([]);
+const searchQuery = ref('');
 
 const fetchUsers = async () => {
   try {
@@ -35,11 +36,36 @@ const openModal = (user) => {
 const closeModal = () => {
   isModalOpen.value = false;
 };
+
+// Computed property for filtering users
+const filteredUsers = computed(() => {
+  if (!searchQuery.value) {
+    return users.value;
+  }
+  return users.value.filter((user) =>
+    `${user.name.first} ${user.name.last} ${user.email} ${user.location.country}`
+      .toLowerCase()
+      .includes(searchQuery.value.toLowerCase())
+  );
+});
 </script>
 
 <template>
   <div class="w-[80%] mx-auto mt-10">
-    <!-- Header Section -->
+    <!-- Search Bar -->
+    <div class="relative w-1/3 mb-10 ml-auto">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Search users..."
+        class="w-full p-3 pl-10 border border-gray-300 rounded-lg shadow-md focus:ring-2 focus:ring-[#61b8d4] focus:outline-none"
+      />
+      <i
+        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg fas fa-search"
+      ></i>
+    </div>
+
+    <!-- Table Header -->
     <div
       class="flex justify-between px-6 py-3 text-gray-400 text-sm rounded-t-lg"
     >
@@ -53,7 +79,7 @@ const closeModal = () => {
     <!-- User List -->
     <div class="space-y-3">
       <div
-        v-for="(user, index) in users"
+        v-for="(user, index) in filteredUsers"
         :key="index"
         class="flex justify-between px-6 py-4 bg-white rounded-lg shadow-md transition border border-transparent hover:cursor-pointer hover:border-[#61b8d4] hover:border-2 h-20 items-center"
         @click="openModal(user)"
@@ -76,19 +102,11 @@ const closeModal = () => {
       </div>
     </div>
 
-    <div>
-      <div
-        v-for="user in users"
-        :key="user.id"
-        @click="openModal(user)"
-        class="cursor-pointer p-4 bg-white rounded-lg shadow-md mb-2 hover:border-[#61b8d4] border transition"
-      ></div>
-
-      <UserModal
-        :user="selectedUser"
-        :isOpen="isModalOpen"
-        :closeModal="closeModal"
-      />
-    </div>
+    <!-- User Modal -->
+    <UserModal
+      :user="selectedUser"
+      :isOpen="isModalOpen"
+      :closeModal="closeModal"
+    />
   </div>
 </template>
