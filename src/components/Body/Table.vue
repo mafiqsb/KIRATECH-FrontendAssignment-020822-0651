@@ -10,6 +10,7 @@ const fetchUsers = async () => {
     const response = await fetch('https://randomuser.me/api/?results=20');
     const data = await response.json();
     users.value = data.results;
+    searchQuery.value = '';
   } catch (error) {
     console.error('Error fetching users:', error);
   }
@@ -37,7 +38,6 @@ const closeModal = () => {
   isModalOpen.value = false;
 };
 
-// Computed property for filtering users
 const filteredUsers = computed(() => {
   if (!searchQuery.value) {
     return users.value;
@@ -65,9 +65,9 @@ const filteredUsers = computed(() => {
       ></i>
     </div>
 
-    <!-- Table Header -->
+    <!-- Table Header (Hidden on Mobile) -->
     <div
-      class="flex justify-between px-6 py-3 text-gray-400 text-sm rounded-t-lg"
+      class="hidden md:flex justify-between px-6 py-3 text-gray-400 text-sm rounded-t-lg bg-gray-100"
     >
       <span class="w-1/5">Date</span>
       <span class="w-2/5">Name</span>
@@ -81,24 +81,58 @@ const filteredUsers = computed(() => {
       <div
         v-for="(user, index) in filteredUsers"
         :key="index"
-        class="flex justify-between px-6 py-4 bg-white rounded-lg shadow-md transition border border-transparent hover:cursor-pointer hover:border-[#61b8d4] hover:border-2 h-20 items-center"
+        class="bg-white rounded-lg shadow-md transition border border-transparent hover:cursor-pointer hover:border-[#61b8d4] hover:border-2 p-4 md:flex md:justify-between md:items-center"
         @click="openModal(user)"
       >
-        <span class="w-1/5 text-gray-400 text-sm">
-          {{ formatDate(user.registered.date) }}
-        </span>
-        <span
-          class="w-2/5 text-black font-light hover:text-[#61b8d4] cursor-pointer"
+        <!-- Mobile Layout -->
+        <div class="md:hidden">
+          <p class="text-gray-400 text-sm">
+            <strong>Date:</strong> {{ formatDate(user.registered.date) }}
+          </p>
+          <p class="text-black font-medium text-lg">
+            {{ user.name.first }} {{ user.name.last }}
+          </p>
+          <p class="capitalize text-gray-500 text-sm">
+            <strong>Gender:</strong> {{ user.gender }}
+          </p>
+          <p class="text-gray-500 text-sm">
+            <strong>Country:</strong> {{ user.location.country }}
+          </p>
+          <p class="text-gray-400 text-sm truncate">
+            <strong>Email:</strong> {{ user.email }}
+          </p>
+        </div>
+
+        <!-- Desktop Layout -->
+        <div class="hidden md:flex justify-between w-full items-center h-20">
+          <span class="w-1/5 text-gray-400 text-sm">
+            {{ formatDate(user.registered.date) }}
+          </span>
+          <span
+            class="w-2/5 text-black font-light hover:text-[#61b8d4] cursor-pointer"
+          >
+            {{ user.name.first }} {{ user.name.last }}
+          </span>
+          <span class="w-1/5 capitalize text-gray-400 text-sm font-light">
+            {{ user.gender }}
+          </span>
+          <span class="w-1/5 text-sm font-light">
+            {{ user.location.country }}
+          </span>
+          <span class="w-1/5 text-gray-400 text-sm truncate">
+            {{ user.email }}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex justify-center mt-6 mb-6">
+        <button
+          class="px-6 py-3 bg-[#61b8d4] text-white font-semibold rounded-lg shadow-md transition-all duration-300 ease-in-out hover:bg-[#4fa1bb] hover:shadow-lg active:scale-95"
+          @click="fetchUsers"
         >
-          {{ user.name.first }} {{ user.name.last }}
-        </span>
-        <span class="w-1/5 capitalize text-gray-400 text-sm font-light">{{
-          user.gender
-        }}</span>
-        <span class="w-1/5 text-sm font-light">{{
-          user.location.country
-        }}</span>
-        <span class="w-1/5 text-gray-400 text-sm">{{ user.email }}</span>
+          <i class="fas fa-sync-alt animate-spin-once hover:cursor-pointer"></i>
+          Refresh
+        </button>
       </div>
     </div>
 
