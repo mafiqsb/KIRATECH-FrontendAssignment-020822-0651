@@ -7,15 +7,19 @@ const searchQuery = ref('');
 const selectedUser = ref(null);
 const isLoading = ref(false);
 const isError = ref(false);
+const currentPage = ref(1);
+const pageSize = ref(10);
 
 const fetchUsers = async () => {
   isLoading.value = true;
   isError.value = false;
 
   try {
+    currentPage.value = 1;
     const response = await fetch('https://randomuser.me/api/?results=20');
     const data = await response.json();
     users.value = data.results;
+
     searchQuery.value = '';
   } catch (error) {
     isError.value = true;
@@ -23,6 +27,10 @@ const fetchUsers = async () => {
   } finally {
     isLoading.value = false;
   }
+};
+
+const refreshFetch = () => {
+  fetchUsers();
 };
 
 const formatDate = (dateString) => {
@@ -48,6 +56,20 @@ const filteredUsers = computed(() => {
       .toLowerCase()
       .includes(searchQuery.value.toLowerCase())
   );
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(users.value.length / pageSize.value);
+});
+
+const goToPage = (page) => {
+  currentPage.value = page;
+};
+
+const paginatedUsers = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return filteredUsers.value.slice(start, end);
 });
 </script>
 
@@ -98,7 +120,7 @@ const filteredUsers = computed(() => {
 
     <div class="space-y-3">
       <div
-        v-for="(user, index) in filteredUsers"
+        v-for="(user, index) in paginatedUsers"
         :key="index"
         class="bg-white rounded-lg shadow-md transition border border-transparent hover:cursor-pointer hover:border-[#61b8d4] hover:border-2 p-4 md:flex md:justify-between md:items-center"
         @click="openModal(user)"
@@ -144,8 +166,23 @@ const filteredUsers = computed(() => {
 
       <div class="flex justify-center mt-6 mb-6">
         <button
+          v-for="page in totalPages"
+          :key="page"
+          class="px-4 py-2 mx-1 font-semibold rounded-lg shadow-md transition-all duration-300 ease-in-out hover:bg-[#4fa1bb] hover:shadow-lg active:scale-95 hover:cursor-pointer"
+          :class="{
+            'bg-[#4fa1bb] text-white': page === currentPage,
+            'text-gray-700 hover:bg-gray-200': page !== currentPage,
+          }"
+          @click="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+      </div>
+
+      <div class="flex justify-center mt-6 mb-6">
+        <button
           class="px-6 py-3 bg-[#61b8d4] text-white font-semibold rounded-lg shadow-md transition-all duration-300 ease-in-out hover:bg-[#4fa1bb] hover:shadow-lg active:scale-95 hover:cursor-pointer"
-          @click="fetchUsers"
+          @click="refreshFetch"
         >
           <i class="fas fa-sync-alt animate-spin-once"></i>
           Refresh
@@ -153,10 +190,29 @@ const filteredUsers = computed(() => {
       </div>
     </div>
 
-    <UserModal
-      :user="selectedUser"
-      :isOpen="!!selectedUser"
-      @closeModal="selectedUser = null"
-    />
+    <transition name="fade">
+      <UserModal
+        v-if="selectedUser"
+        :user="selectedUser"
+        :isOpen="!!selectedUser"
+        @closeModal="selectedUser = null"
+      />
+    </transition>
   </div>
 </template>
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+</style>

@@ -1,8 +1,6 @@
-<script setup lang="js"></script>
-
 <template>
   <div
-    class="w-[90%] md:w-[80%] text-white py-6 flex flex-col md:flex-row mx-auto gap-6 relative h-auto md:h-40"
+    class="w-[90%] z-[4] md:w-[80%] text-white py-6 flex flex-col md:flex-row mx-auto gap-6 relative h-auto md:h-40"
   >
     <img
       src="@/assets/Avatar.png"
