@@ -1,7 +1,7 @@
 <script setup>
-import Hero from './components/Body/Hero.vue';
-import Table from './components/Body/Table.vue';
-import Navbar from './components/Navbar.vue';
+import Hero from './components/layout/HeroSection.vue';
+import Table from './components/user/UserListTable.vue';
+import Navbar from './components/layout/NavbarSection.vue';
 </script>
 
 <template>

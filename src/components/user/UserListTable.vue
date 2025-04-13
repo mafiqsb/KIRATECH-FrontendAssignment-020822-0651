@@ -1,18 +1,27 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import UserModal from '../UserModal.vue';
+import UserModal from './UserModal.vue';
 
 const users = ref([]);
 const searchQuery = ref('');
+const selectedUser = ref(null);
+const isLoading = ref(false);
+const isError = ref(false);
 
 const fetchUsers = async () => {
+  isLoading.value = true;
+  isError.value = false;
+
   try {
     const response = await fetch('https://randomuser.me/api/?results=20');
     const data = await response.json();
     users.value = data.results;
     searchQuery.value = '';
   } catch (error) {
+    isError.value = true;
     console.error('Error fetching users:', error);
+  } finally {
+    isLoading.value = false;
   }
 };
 
@@ -26,16 +35,8 @@ const formatDate = (dateString) => {
 
 onMounted(fetchUsers);
 
-const isModalOpen = ref(false);
-const selectedUser = ref(null);
-
 const openModal = (user) => {
   selectedUser.value = user;
-  isModalOpen.value = true;
-};
-
-const closeModal = () => {
-  isModalOpen.value = false;
 };
 
 const filteredUsers = computed(() => {
@@ -52,7 +53,7 @@ const filteredUsers = computed(() => {
 
 <template>
   <div class="w-[80%] mx-auto mt-10">
-    <div class="relative w-1/3 mb-10 ml-auto">
+    <div class="relative md:w-1/3 mb-10 ml-auto">
       <input
         v-model="searchQuery"
         type="text"
@@ -74,7 +75,27 @@ const filteredUsers = computed(() => {
       <span class="w-1/5">Email</span>
     </div>
 
-    <!-- User List -->
+    <!-- Loading State -->
+    <div v-if="isLoading" class="text-center py-10 text-gray-500 text-lg">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+    </div>
+
+    <!-- Error State -->
+    <div
+      v-if="isError && !isLoading"
+      class="text-center py-10 text-red-500 text-lg"
+    >
+      Failed to load users. Please try again.
+    </div>
+
+    <!-- Empty Search Result -->
+    <div
+      v-if="!isLoading && !isError && filteredUsers.length === 0"
+      class="text-center py-10 text-gray-500"
+    >
+      No users found.
+    </div>
+
     <div class="space-y-3">
       <div
         v-for="(user, index) in filteredUsers"
@@ -82,7 +103,6 @@ const filteredUsers = computed(() => {
         class="bg-white rounded-lg shadow-md transition border border-transparent hover:cursor-pointer hover:border-[#61b8d4] hover:border-2 p-4 md:flex md:justify-between md:items-center"
         @click="openModal(user)"
       >
-        <!-- Mobile Layout -->
         <div class="md:hidden">
           <p class="text-gray-400 text-sm">
             <strong>Date:</strong> {{ formatDate(user.registered.date) }}
@@ -101,7 +121,6 @@ const filteredUsers = computed(() => {
           </p>
         </div>
 
-        <!-- Desktop Layout -->
         <div class="hidden md:flex justify-between w-full items-center h-20">
           <span class="w-1/5 text-gray-400 text-sm">
             {{ formatDate(user.registered.date) }}
@@ -134,11 +153,10 @@ const filteredUsers = computed(() => {
       </div>
     </div>
 
-    <!-- User Modal -->
     <UserModal
       :user="selectedUser"
-      :isOpen="isModalOpen"
-      :closeModal="closeModal"
+      :isOpen="!!selectedUser"
+      @closeModal="selectedUser = null"
     />
   </div>
 </template>

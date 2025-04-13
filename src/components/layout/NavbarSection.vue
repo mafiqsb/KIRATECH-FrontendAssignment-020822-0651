@@ -1,5 +1,5 @@
 <template>
-  <div class="md:w-[80%] mx-auto">
+  <div class="w-[80%] md:w-[80%] mx-auto">
     <div class="text-black pt-4 pb-4 flex justify-between">
       <div class="flex">
         <img src="@/assets/Logo.png" alt="Logo" class="h-14 w-auto" />
